@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Table Drink Tracker</title>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .setup-section {
+            margin-bottom: 30px;
+        }
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .table-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .drink-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+        .drink-count {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .table-name-input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .table-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .image-upload {
+            margin-bottom: 10px;
+        }
+        .upload-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .remove-image {
+            display: none;
+            margin-top: 5px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="setup-section">
+            <h2>Bar Table Setup</h2>
+            <label for="tableCount">Number of Tables (max 20):</label>
+            <select id="tableCount">
+                <option value="0">Select number of tables</option>
+            </select>
+        </div>
+        
+        <div id="tablesContainer" class="tables-grid">
+            <!-- Tables will be dynamically added here -->
+        </div>
+    </div>
+    <script src="bar-tracker.js"></script>
+</body>
+</html>
