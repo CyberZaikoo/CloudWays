@@ -1,0 +1,173 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const tableCountSelect = document.getElementById('tableCount');
+    const tablesContainer = document.getElementById('tablesContainer');
+    
+    // Initialize table count dropdown
+    for (let i = 1; i <= 20; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        tableCountSelect.appendChild(option);
+    }
+    
+    // Store table data
+    let tables = {};
+    
+    // Handle table count changes
+    tableCountSelect.addEventListener('change', function() {
+        const count = parseInt(this.value);
+        createTables(count);
+    });
+    
+    function createTableCard(tableNum) {
+        const tableCard = document.createElement('div');
+        tableCard.className = 'table-card';
+        
+        // Initialize table data
+        tables[tableNum] = tables[tableNum] || {
+            name: `Table ${tableNum}`,
+            drinks: 0,
+            image: null
+        };
+        
+        // Create table name input
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'table-name-input';
+        nameInput.value = tables[tableNum].name;
+        nameInput.addEventListener('change', function() {
+            tables[tableNum].name = this.value;
+            saveToLocalStorage();
+        });
+        
+        // Create image upload section
+        const imageSection = document.createElement('div');
+        imageSection.className = 'image-upload';
+        
+        const uploadLabel = document.createElement('label');
+        uploadLabel.className = 'upload-label';
+        uploadLabel.textContent = 'Table Image';
+        
+        const imageInput = document.createElement('input');
+        imageInput.type = 'file';
+        imageInput.accept = 'image/*';
+        
+        const imagePreview = document.createElement('img');
+        imagePreview.className = 'table-image';
+        
+        const removeImageBtn = document.createElement('button');
+        removeImageBtn.className = 'remove-image';
+        removeImageBtn.textContent = 'Remove Image';
+        
+        // Handle image upload
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    tables[tableNum].image = event.target.result;
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = 'block';
+                    removeImageBtn.style.display = 'block';
+                    saveToLocalStorage();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Handle image removal
+        removeImageBtn.addEventListener('click', function() {
+            tables[tableNum].image = null;
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+            removeImageBtn.style.display = 'none';
+            imageInput.value = '';
+            saveToLocalStorage();
+        });
+        
+        // Load existing image if any
+        if (tables[tableNum].image) {
+            imagePreview.src = tables[tableNum].image;
+            imagePreview.style.display = 'block';
+            removeImageBtn.style.display = 'block';
+        }
+        
+        // Create drink controls
+        const controls = document.createElement('div');
+        controls.className = 'drink-controls';
+        
+        const minusBtn = document.createElement('button');
+        minusBtn.textContent = '-';
+        minusBtn.onclick = () => updateDrinks(tableNum, -1);
+        
+        const drinkCount = document.createElement('span');
+        drinkCount.className = 'drink-count';
+        drinkCount.textContent = tables[tableNum].drinks;
+        
+        const plusBtn = document.createElement('button');
+        plusBtn.textContent = '+';
+        plusBtn.onclick = () => updateDrinks(tableNum, 1);
+        
+        controls.appendChild(minusBtn);
+        controls.appendChild(drinkCount);
+        controls.appendChild(plusBtn);
+        
+        imageSection.appendChild(uploadLabel);
+        imageSection.appendChild(imageInput);
+        imageSection.appendChild(imagePreview);
+        imageSection.appendChild(removeImageBtn);
+        
+        tableCard.appendChild(nameInput);
+        tableCard.appendChild(imageSection);
+        tableCard.appendChild(controls);
+        tablesContainer.appendChild(tableCard);
+    }
+    
+    function createTables(count) {
+        // Preserve existing table data
+        const existingTables = {...tables};
+        tablesContainer.innerHTML = '';
+        
+        // Create new tables while keeping existing data
+        for (let i = 1; i <= count; i++) {
+            if (existingTables[i]) {
+                tables[i] = existingTables[i];
+            }
+            createTableCard(i);
+        }
+        
+        saveToLocalStorage();
+    }
+    
+    function updateDrinks(tableNum, change) {
+        tables[tableNum].drinks = Math.max(0, tables[tableNum].drinks + change);
+        updateDisplay();
+        saveToLocalStorage();
+    }
+    
+    function updateDisplay() {
+        const tableCards = tablesContainer.children;
+        for (let i = 0; i < tableCards.length; i++) {
+            const tableNum = i + 1;
+            const drinkCount = tableCards[i].querySelector('.drink-count');
+            drinkCount.textContent = tables[tableNum].drinks;
+        }
+    }
+    
+    function saveToLocalStorage() {
+        localStorage.setItem('barTables', JSON.stringify({
+            count: tableCountSelect.value,
+            tables: tables
+        }));
+    }
+    
+    // Load saved data on page load
+    const savedData = localStorage.getItem('barTables');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        tableCountSelect.value = data.count;
+        tables = data.tables;
+        createTables(parseInt(data.count));
+        updateDisplay();
+    }
+});
